@@ -15,10 +15,6 @@ This is an MCP (Model Context Protocol) server that provides text-to-speech func
 - One-shot TTS: `uv run read-aloud-mcp --text "Hello world"`
 - Generate without playing: `uv run read-aloud-mcp --text "Hello" --no-play`
 
-**Docker Deployment**:
-- Build and run: `docker compose up --build`
-- Run in background: `docker compose up -d --build`
-- Access HTTP server: `http://localhost:8000`
 
 **Code Quality**:
 - Type checking: `uv run mypy src/`
@@ -30,7 +26,7 @@ This is an MCP (Model Context Protocol) server that provides text-to-speech func
 
 **Multiple Operation Modes**:
 - **Stdio Server Mode**: Traditional MCP server using stdio transport for Claude Desktop integration
-- **HTTP Server Mode**: FastMCP HTTP server for web-based integration and Docker deployment
+- **HTTP Server Mode**: FastMCP HTTP server for web-based integration
 - **One-shot Mode**: CLI usage triggered by `--text` argument
 
 **Core Components**:
@@ -49,10 +45,6 @@ This is an MCP (Model Context Protocol) server that provides text-to-speech func
 - **Resource Management**: Lazy TTS engine initialization with proper cleanup
 - **File Management**: Timestamped filenames (`YYYY-MM-DD_HH-MM-SS-mmm.wav`) in `audio_outputs/`
 
-**Docker Support**:
-- Dockerfile with espeak-ng and audio dependencies
-- docker-compose.yml for easy deployment
-- HTTP server mode optimized for containerized environments
 
 ## Important Implementation Details
 

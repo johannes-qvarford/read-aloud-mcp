@@ -8,7 +8,7 @@ packages = ["src/mcp_tts_server"]
 [project]
 name = "read-aloud-mcp"
 version = "0.1.0"
-description = "FastMCP-based text-to-speech server with Docker deployment and HTTP/stdio transport"
+description = "FastMCP-based text-to-speech server with HTTP/stdio transport for local deployment"
 authors = [{name = "User"}]
 readme = "README.md"
 requires-python = ">=3.11"
