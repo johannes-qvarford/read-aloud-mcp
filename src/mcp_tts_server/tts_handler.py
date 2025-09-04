@@ -34,9 +34,15 @@ class TTSHandler:
     def _get_tts_engine(self) -> pyttsx3.Engine:
         """Get or initialize TTS engine."""
         if self._tts_engine is None:
+            # Initialize with default settings to avoid voice issues
             self._tts_engine = pyttsx3.init()
-            # Set speech rate (optional customization)
-            self._tts_engine.setProperty('rate', 200)
+            
+            try:
+                # Only set speech rate, avoid voice selection issues
+                self._tts_engine.setProperty('rate', 200)
+            except Exception:
+                # Continue with default settings if customization fails
+                pass
         return self._tts_engine
 
     def _generate_timestamp_filename(self) -> str:
