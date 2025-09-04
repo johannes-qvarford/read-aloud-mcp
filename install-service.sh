@@ -92,9 +92,15 @@ info "Copying project files..."
 sudo cp -r "$PROJECT_DIR"/* "$INSTALL_DIR/"
 sudo chown -R "$SERVICE_USER:$SERVICE_USER" "$INSTALL_DIR"
 
+# Copy uv binary to install directory to avoid home directory access issues
+info "Making uv accessible to service user..."
+sudo cp "$UV_PATH" "$INSTALL_DIR/uv"
+sudo chown "$SERVICE_USER:$SERVICE_USER" "$INSTALL_DIR/uv"
+sudo chmod +x "$INSTALL_DIR/uv"
+
 # Install Python dependencies as the service user
 info "Installing Python dependencies..."
-sudo -u "$SERVICE_USER" bash -c "cd '$INSTALL_DIR' && '$UV_PATH' sync --no-dev"
+sudo -u "$SERVICE_USER" bash -c "cd '$INSTALL_DIR' && './uv' sync --no-dev"
 
 # Create systemd service file
 info "Creating systemd service file..."
@@ -112,7 +118,8 @@ Group=$SERVICE_USER
 WorkingDirectory=$INSTALL_DIR
 Environment=PATH=$INSTALL_DIR/.venv/bin:$(dirname "$UV_PATH"):/usr/local/bin:/usr/bin:/bin
 Environment=PYTHONPATH=$INSTALL_DIR
-ExecStart=$UV_PATH run read-aloud-mcp --http --port $SERVICE_PORT
+Environment=UV_CACHE_DIR=$INSTALL_DIR/.cache
+ExecStart=$INSTALL_DIR/uv run read-aloud-mcp --http --port $SERVICE_PORT
 Restart=on-failure
 RestartSec=5
 StandardOutput=journal
@@ -121,9 +128,9 @@ SyslogIdentifier=$SERVICE_NAME
 
 # Security settings
 NoNewPrivileges=yes
-ProtectSystem=strict
-ProtectHome=yes
-ReadWritePaths=$INSTALL_DIR/audio_outputs
+ProtectSystem=true
+# ProtectHome=yes  # Disabled - needed for uv python symlinks
+ReadWritePaths=$INSTALL_DIR
 PrivateTmp=yes
 ProtectKernelTunables=yes
 ProtectKernelModules=yes
@@ -133,10 +140,10 @@ ProtectControlGroups=yes
 WantedBy=multi-user.target
 EOF
 
-# Create audio outputs directory
-info "Creating audio outputs directory..."
-sudo mkdir -p "$INSTALL_DIR/audio_outputs"
-sudo chown "$SERVICE_USER:$SERVICE_USER" "$INSTALL_DIR/audio_outputs"
+# Create audio outputs and cache directories
+info "Creating audio outputs and cache directories..."
+sudo mkdir -p "$INSTALL_DIR/audio_outputs" "$INSTALL_DIR/.cache"
+sudo chown "$SERVICE_USER:$SERVICE_USER" "$INSTALL_DIR/audio_outputs" "$INSTALL_DIR/.cache"
 
 # Reload systemd and enable service
 info "Reloading systemd and enabling service..."
