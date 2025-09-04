@@ -5,7 +5,6 @@ import asyncio
 import sys
 
 from fastmcp import FastMCP
-from fastmcp.tools.tool import TextContent, ToolResult
 from pydantic import BaseModel, Field
 
 from .tts_handler import TTSHandler
@@ -24,7 +23,7 @@ class TTSResult(BaseModel):
 
 
 @mcp.tool()
-async def read_aloud(text: str) -> ToolResult:
+async def read_aloud(text: str) -> TTSResult:
     """Convert text to speech and play it aloud.
 
     Args:
@@ -44,27 +43,13 @@ async def read_aloud(text: str) -> ToolResult:
         if "audio: " in result_message:
             audio_file = result_message.split("audio: ")[-1]
 
-        # Create structured result
-        structured_result = TTSResult(
-            success=True, message=result_message, audio_file=audio_file
-        )
-
-        return ToolResult(
-            content=[TextContent(type="text", text=result_message)],
-            structured_content=structured_result.model_dump(),
-        )
+        # Return complex type result
+        return TTSResult(success=True, message=result_message, audio_file=audio_file)
 
     except Exception as e:
         error_message = f"Error processing text-to-speech: {str(e)}"
 
-        structured_error = TTSResult(
-            success=False, message=error_message, audio_file=""
-        )
-
-        return ToolResult(
-            content=[TextContent(type="text", text=error_message)],
-            structured_content=structured_error.model_dump(),
-        )
+        return TTSResult(success=False, message=error_message, audio_file="")
 
 
 def main() -> None:
