@@ -8,15 +8,14 @@ packages = ["src/mcp_tts_server"]
 [project]
 name = "read-aloud-mcp"
 version = "0.1.0"
-description = "MCP server for text-to-speech with Chatterbox TTS"
+description = "MCP server for text-to-speech with pyttsx3/espeak"
 authors = [{name = "User"}]
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
     "mcp>=1.0.0",
     "simpleaudio>=1.0.0",
-    "chatterbox-tts>=0.1.0",
-    "torchaudio>=2.0.0",
+    "pyttsx3>=2.90",
 ]
 
 [project.optional-dependencies]

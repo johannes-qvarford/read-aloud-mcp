@@ -4,9 +4,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import Optional
 
+import pyttsx3  # type: ignore[import-untyped]
 import simpleaudio as sa  # type: ignore[import-untyped]
-import torchaudio as ta  # type: ignore[import-untyped]
-from chatterbox.tts import ChatterboxTTS  # type: ignore[import-untyped]
 
 
 class TTSHandler:
@@ -16,7 +15,7 @@ class TTSHandler:
         """Initialize TTS handler with output directory."""
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(exist_ok=True)
-        self._tts_engine: Optional[ChatterboxTTS] = None
+        self._tts_engine: Optional[pyttsx3.Engine] = None
 
     def __del__(self) -> None:
         """Clean up resources."""
@@ -26,20 +25,18 @@ class TTSHandler:
         """Clean up TTS engine resources."""
         if self._tts_engine is not None:
             try:
-                # Force cleanup of CUDA memory if available
-                import torch
-                if torch.cuda.is_available():
-                    torch.cuda.empty_cache()
+                self._tts_engine.stop()
                 del self._tts_engine
                 self._tts_engine = None
             except Exception:
                 pass  # Ignore cleanup errors
 
-    def _get_tts_engine(self) -> ChatterboxTTS:
+    def _get_tts_engine(self) -> pyttsx3.Engine:
         """Get or initialize TTS engine."""
         if self._tts_engine is None:
-            # Initialize with default device (will use CPU if CUDA unavailable)
-            self._tts_engine = ChatterboxTTS.from_pretrained(device="cpu")
+            self._tts_engine = pyttsx3.init()
+            # Set speech rate (optional customization)
+            self._tts_engine.setProperty('rate', 200)
         return self._tts_engine
 
     def _generate_timestamp_filename(self) -> str:
@@ -59,12 +56,9 @@ class TTSHandler:
         filename = self._generate_timestamp_filename()
         output_path = self.output_dir / filename
 
-        # Generate audio using Chatterbox TTS
-        # Note: generate() method returns waveform data, not raw bytes
-        wav_tensor = tts_engine.generate(text)
-
-        # Save audio to file using torchaudio
-        ta.save(str(output_path), wav_tensor, tts_engine.sr)
+        # Save audio using pyttsx3
+        tts_engine.save_to_file(text, str(output_path))
+        tts_engine.runAndWait()
 
         return output_path
 
