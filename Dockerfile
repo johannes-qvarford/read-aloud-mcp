@@ -1,13 +1,15 @@
 # Use Python 3.11 slim image
 FROM python:3.11-slim
 
-# Install system dependencies for espeak-ng and audio
+# Install system dependencies for espeak-ng, audio, and build tools
 RUN apt-get update && apt-get install -y \
     espeak-ng \
     espeak-ng-data \
     libespeak-ng1 \
     alsa-utils \
     pulseaudio \
+    build-essential \
+    libasound2-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Set working directory
