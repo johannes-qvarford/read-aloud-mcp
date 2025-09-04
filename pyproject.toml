@@ -15,7 +15,7 @@ requires-python = ">=3.11"
 dependencies = [
     "mcp>=1.0.0",
     "simpleaudio>=1.0.0",
-    "pyttsx3>=2.90",
+    "pyttsx4>=3.0.0",
     "fastmcp>=2.0.0",
 ]
 

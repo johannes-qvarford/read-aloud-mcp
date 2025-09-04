@@ -5,7 +5,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Optional
 
-import pyttsx3  # type: ignore[import-untyped]
+import pyttsx4  # type: ignore[import-untyped]
 import simpleaudio as sa  # type: ignore[import-untyped]
 
 
@@ -16,7 +16,7 @@ class TTSHandler:
         """Initialize TTS handler with output directory."""
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(exist_ok=True)
-        self._tts_engine: Optional[pyttsx3.Engine] = None
+        self._tts_engine: Optional[pyttsx4.Engine] = None
 
     def __del__(self) -> None:
         """Clean up resources."""
@@ -30,11 +30,11 @@ class TTSHandler:
                 del self._tts_engine
             self._tts_engine = None
 
-    def _get_tts_engine(self) -> pyttsx3.Engine:
+    def _get_tts_engine(self) -> pyttsx4.Engine:
         """Get or initialize TTS engine."""
         if self._tts_engine is None:
             # Initialize with default settings to avoid voice issues
-            self._tts_engine = pyttsx3.init()
+            self._tts_engine = pyttsx4.init()
 
             with contextlib.suppress(Exception):
                 # Only set speech rate, avoid voice selection issues
