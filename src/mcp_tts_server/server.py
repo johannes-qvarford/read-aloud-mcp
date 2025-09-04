@@ -3,60 +3,30 @@
 import argparse
 import asyncio
 import sys
-from typing import Any
 
-import mcp.server.stdio
-import mcp.types as types
-from mcp.server import NotificationOptions, Server
-from mcp.server.models import InitializationOptions
+from fastmcp import FastMCP
 
 from .tts_handler import TTSHandler
 
-app = Server("read-aloud-mcp")
+# Initialize FastMCP server
+mcp = FastMCP("Read Aloud MCP Server")
 tts_handler = TTSHandler()
 
 
-@app.list_tools()
-async def handle_list_tools() -> list[types.Tool]:
-    """List available tools."""
-    return [
-        types.Tool(
-            name="read_aloud",
-            description="Convert text to speech and play it aloud",
-            inputSchema={
-                "type": "object",
-                "properties": {
-                    "text": {
-                        "type": "string",
-                        "description": "The text to convert to speech and play",
-                    }
-                },
-                "required": ["text"],
-            },
-        )
-    ]
+@mcp.tool()
+async def read_aloud(text: str) -> str:
+    """Convert text to speech and play it aloud.
 
+    Args:
+        text: The text to convert to speech and play
 
-@app.call_tool()
-async def handle_call_tool(
-    name: str, arguments: dict[str, Any] | None
-) -> list[types.TextContent]:
-    """Handle tool calls."""
-    if name != "read_aloud":
-        raise ValueError(f"Unknown tool: {name}")
-
-    if not arguments or "text" not in arguments:
-        raise ValueError("Missing required argument: text")
-
-    text = arguments["text"]
-    if not isinstance(text, str):
-        raise ValueError("Argument 'text' must be a string")
-
+    Returns:
+        Status message indicating success or failure
+    """
     # Process text-to-speech in a thread to avoid blocking
     loop = asyncio.get_event_loop()
     result = await loop.run_in_executor(None, tts_handler.read_aloud, text)
-
-    return [types.TextContent(type="text", text=result)]
+    return result
 
 
 def main() -> None:
@@ -66,8 +36,11 @@ def main() -> None:
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  # Start MCP server
+  # Start MCP server (stdio)
   %(prog)s
+
+  # Start HTTP server
+  %(prog)s --http
 
   # One-shot text-to-speech
   %(prog)s --text "Hello world"
@@ -82,15 +55,24 @@ Examples:
         action="store_true",
         help="Don't play audio after generation (only save to file)",
     )
+    parser.add_argument(
+        "--http", action="store_true", help="Run as HTTP server instead of stdio"
+    )
+    parser.add_argument(
+        "--port", type=int, default=8000, help="Port for HTTP server (default: 8000)"
+    )
 
     args = parser.parse_args()
 
     if args.text:
         # One-shot mode: convert text to speech and exit
         asyncio.run(run_oneshot(args.text, not args.no_play))
+    elif args.http:
+        # HTTP server mode
+        mcp.run(transport="http", port=args.port)
     else:
-        # Server mode: start MCP server
-        asyncio.run(run_server())
+        # Stdio server mode (default)
+        mcp.run(transport="stdio")
 
 
 async def run_oneshot(text: str, play_audio: bool = True) -> None:
@@ -120,24 +102,6 @@ async def run_oneshot(text: str, play_audio: bool = True) -> None:
         import time
 
         time.sleep(0.5)
-
-
-async def run_server() -> None:
-    """Run MCP server mode."""
-    print("Starting MCP Text-to-Speech Server...")
-    async with mcp.server.stdio.stdio_server() as (read_stream, write_stream):
-        await app.run(
-            read_stream,
-            write_stream,
-            InitializationOptions(
-                server_name="read-aloud-mcp",
-                server_version="0.1.0",
-                capabilities=app.get_capabilities(
-                    notification_options=NotificationOptions(),
-                    experimental_capabilities={},
-                ),
-            ),
-        )
 
 
 if __name__ == "__main__":

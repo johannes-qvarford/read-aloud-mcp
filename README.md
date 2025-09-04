@@ -1,14 +1,15 @@
 # Read Aloud MCP Server
 
-A Model Context Protocol (MCP) server that provides text-to-speech functionality using pyttsx3/espeak.
+A Model Context Protocol (MCP) server that provides text-to-speech functionality using pyttsx3/espeak. Built with FastMCP for easy deployment and multiple transport modes.
 
 ## Features
 
-- Text-to-speech conversion using pyttsx3 (espeak on Linux, SAPI5 on Windows, etc.)
-- Automatic audio file generation with timestamps
-- Immediate playback after generation
-- Cross-platform audio support
-- Dual operation modes: MCP server and CLI one-shot
+- **FastMCP Integration**: Modern MCP server framework with HTTP and stdio transport support
+- **Docker Deployment**: Easy deployment with all dependencies included
+- **Multiple Operation Modes**: HTTP server, stdio server, and CLI one-shot
+- **Text-to-speech conversion**: Uses pyttsx3 (espeak-ng on Linux, SAPI5 on Windows, etc.)
+- **Automatic audio file generation**: Timestamped .wav files in `audio_outputs/`
+- **Cross-platform audio support**: Works in containers and local environments
 
 ## Prerequisites
 
@@ -25,13 +26,43 @@ sudo apt install espeak-ng espeak-ng-data libespeak-ng1
 
 ## Installation
 
+### Local Development
+
 ```bash
 uv sync --extra dev
 ```
 
+### Docker Deployment (Recommended)
+
+The easiest way to run this MCP server is using Docker, which handles all system dependencies:
+
+```bash
+# Build and run HTTP server
+docker compose up --build
+
+# Or run in background
+docker compose up -d --build
+```
+
+The server will be available at `http://localhost:8000`
+
 ## Usage
 
-### MCP Server Mode
+### Docker HTTP Server
+
+```bash
+# Start HTTP server (recommended for production)
+docker compose up
+
+# Test the server
+curl -X POST http://localhost:8000/tools/read_aloud \
+  -H "Content-Type: application/json" \
+  -d '{"text": "Hello from Docker!"}'
+```
+
+### Local Development Modes
+
+#### MCP Server Mode (stdio)
 
 Run as MCP server for integration with Claude Desktop or other MCP clients:
 
@@ -39,7 +70,15 @@ Run as MCP server for integration with Claude Desktop or other MCP clients:
 uv run read-aloud-mcp
 ```
 
-### CLI One-shot Mode
+#### MCP Server Mode (HTTP)
+
+Run as HTTP server for web-based integration:
+
+```bash
+uv run read-aloud-mcp --http --port 8000
+```
+
+#### CLI One-shot Mode
 
 Convert text to speech directly from command line:
 

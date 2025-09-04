@@ -19,6 +19,6 @@ repos:
     rev: v1.10.0
     hooks:
       - id: mypy
-        additional_dependencies: [types-setuptools, mcp>=1.0.0, simpleaudio>=1.0.0, pyttsx3>=2.90]
+        additional_dependencies: [types-setuptools, mcp>=1.0.0, simpleaudio>=1.0.0, pyttsx3>=2.90, fastmcp>=2.0.0]
         args: [--explicit-package-bases]
         files: ^src/

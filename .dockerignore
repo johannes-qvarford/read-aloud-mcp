@@ -1,0 +1,37 @@
+# Development files
+.venv/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Git
+.git/
+.gitignore
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Documentation
+*.md
+!README.md
+
+# Claude Code
+.claude/
+
+# Audio outputs (will be created by container)
+audio_outputs/*.wav
+
+# Development dependencies not needed in container
+.pre-commit-config.yaml
+
+# OS files
+.DS_Store
+Thumbs.db
