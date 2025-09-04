@@ -24,7 +24,6 @@ RUN uv sync --no-dev
 
 # Copy source code
 COPY src/ ./src/
-COPY README.md CLAUDE.md ./
 
 # Create audio outputs directory
 RUN mkdir -p audio_outputs

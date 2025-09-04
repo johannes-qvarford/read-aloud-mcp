@@ -19,9 +19,8 @@ __pycache__/
 *.swp
 *.swo
 
-# Documentation
+# Documentation (not needed in container)
 *.md
-!README.md
 
 # Claude Code
 .claude/
