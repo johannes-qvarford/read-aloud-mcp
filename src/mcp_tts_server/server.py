@@ -5,6 +5,8 @@ import asyncio
 import sys
 
 from fastmcp import FastMCP
+from fastmcp.tools.tool import TextContent, ToolResult
+from pydantic import BaseModel, Field
 
 from .tts_handler import TTSHandler
 
@@ -13,20 +15,56 @@ mcp = FastMCP("Read Aloud MCP Server")
 tts_handler = TTSHandler()
 
 
+class TTSResult(BaseModel):
+    """Result structure for text-to-speech operations."""
+
+    success: bool = Field(description="Whether the operation was successful")
+    message: str = Field(description="Status message or error description")
+    audio_file: str = Field(default="", description="Name of the generated audio file")
+
+
 @mcp.tool()
-async def read_aloud(text: str) -> str:
+async def read_aloud(text: str) -> ToolResult:
     """Convert text to speech and play it aloud.
 
     Args:
         text: The text to convert to speech and play
 
     Returns:
-        Status message indicating success or failure
+        Structured result with success status, message, and audio file information
     """
     # Process text-to-speech in a thread to avoid blocking
     loop = asyncio.get_event_loop()
-    result = await loop.run_in_executor(None, tts_handler.read_aloud, text)
-    return result
+
+    try:
+        result_message = await loop.run_in_executor(None, tts_handler.read_aloud, text)
+
+        # Extract audio file name from the result message if present
+        audio_file = ""
+        if "audio: " in result_message:
+            audio_file = result_message.split("audio: ")[-1]
+
+        # Create structured result
+        structured_result = TTSResult(
+            success=True, message=result_message, audio_file=audio_file
+        )
+
+        return ToolResult(
+            content=[TextContent(type="text", text=result_message)],
+            structured_content=structured_result.model_dump(),
+        )
+
+    except Exception as e:
+        error_message = f"Error processing text-to-speech: {str(e)}"
+
+        structured_error = TTSResult(
+            success=False, message=error_message, audio_file=""
+        )
+
+        return ToolResult(
+            content=[TextContent(type="text", text=error_message)],
+            structured_content=structured_error.model_dump(),
+        )
 
 
 def main() -> None:

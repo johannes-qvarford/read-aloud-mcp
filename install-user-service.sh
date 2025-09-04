@@ -106,7 +106,7 @@ sleep 2
 if systemctl --user is-active --quiet "$SERVICE_NAME"; then
     info "✓ Service is running successfully"
     info "✓ Server is available at: http://localhost:$SERVICE_PORT"
-    
+
     # Test the service
     info "Testing service endpoint..."
     if command -v curl &> /dev/null; then

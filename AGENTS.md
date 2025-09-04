@@ -36,4 +36,3 @@
 ## Security & Configuration Tips
 - Linux: install `espeak-ng` for stable voices (see README). For WSL, audio may need `PULSE_SERVER`/`DISPLAY` (see `install-user-service.sh`).
 - Do not commit generated audio (`audio_outputs/`) or local env artifacts. Keep service units minimal and avoid embedding secrets.
-
