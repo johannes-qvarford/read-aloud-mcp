@@ -5,8 +5,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import Optional
 
-import pyttsx4  # type: ignore[import-untyped]
-import simpleaudio as sa  # type: ignore[import-untyped]
+import pygame  # type: ignore[import-not-found,import-untyped]
+import pyttsx4  # type: ignore[import-not-found,import-untyped]
 
 
 class TTSHandler:
@@ -17,18 +17,24 @@ class TTSHandler:
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(exist_ok=True)
         self._tts_engine: Optional[pyttsx4.Engine] = None
+        self._pygame_initialized = False
 
     def __del__(self) -> None:
         """Clean up resources."""
         self.cleanup()
 
     def cleanup(self) -> None:
-        """Clean up TTS engine resources."""
+        """Clean up TTS engine and pygame resources."""
         if self._tts_engine is not None:
             with contextlib.suppress(Exception):
                 self._tts_engine.stop()
                 del self._tts_engine
             self._tts_engine = None
+
+        if self._pygame_initialized:
+            with contextlib.suppress(Exception):
+                pygame.mixer.quit()
+            self._pygame_initialized = False
 
     def _get_tts_engine(self) -> pyttsx4.Engine:
         """Get or initialize TTS engine."""
@@ -65,19 +71,24 @@ class TTSHandler:
         return output_path
 
     def play_audio_file(self, file_path: Path) -> None:
-        """Play audio file using simpleaudio."""
+        """Play audio file using pygame."""
         if not file_path.exists():
             raise FileNotFoundError(f"Audio file not found: {file_path}")
 
         try:
-            wave_obj = sa.WaveObject.from_wave_file(str(file_path))
-            play_obj = wave_obj.play()
-            play_obj.wait_done()  # Wait for playback to complete
+            # Initialize pygame mixer if not already done
+            if not self._pygame_initialized:
+                pygame.mixer.init()
+                self._pygame_initialized = True
 
-            # Give a moment for audio system to clean up
+            # Load and play the sound
+            sound = pygame.mixer.Sound(str(file_path))
+            sound.play()
+
+            # Wait for playback to complete
             import time
 
-            time.sleep(0.1)
+            time.sleep(sound.get_length() + 0.1)
 
         except Exception as e:
             raise RuntimeError(f"Failed to play audio: {e}") from e

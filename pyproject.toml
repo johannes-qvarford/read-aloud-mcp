@@ -17,6 +17,7 @@ dependencies = [
     "simpleaudio>=1.0.0",
     "pyttsx4>=3.0.0",
     "fastmcp>=2.0.0",
+    "pygame>=2.6.1",
 ]
 
 [project.optional-dependencies]
