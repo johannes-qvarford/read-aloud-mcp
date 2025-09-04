@@ -1,12 +1,12 @@
 # Read Aloud MCP Server
 
-A Model Context Protocol (MCP) server that provides text-to-speech functionality using pyttsx3/espeak. Built with FastMCP for multiple transport modes and easy local deployment.
+A Model Context Protocol (MCP) server that provides text-to-speech functionality using pyttsx4/espeak-ng. Built with FastMCP for multiple transport modes and easy local deployment.
 
 ## Features
 
 - **FastMCP Integration**: Modern MCP server framework with HTTP and stdio transport support
 - **Multiple Operation Modes**: HTTP server, stdio server, and CLI one-shot
-- **Text-to-speech conversion**: Uses pyttsx3 (espeak-ng on Linux, SAPI5 on Windows, etc.)
+- **Text-to-speech conversion**: Uses pyttsx4 (espeak-ng on Linux, SAPI5 on Windows, etc.)
 - **Automatic audio file generation**: Timestamped .wav files in `audio_outputs/`
 - **Local audio playback**: Full audio support when running locally
 
@@ -22,6 +22,17 @@ sudo apt install espeak-ng espeak-ng-data libespeak-ng1
 ```
 
 **Important**: The older `espeak` package may cause voice selection errors. Use `espeak-ng` for best compatibility with pyttsx3.
+**Important**: The older `espeak` package may cause voice selection errors. Use `espeak-ng` for best compatibility with pyttsx4.
+
+### WSL (Windows Subsystem for Linux)
+
+For audio playback under WSLg, set the following environment variables in your user service or shell:
+
+```bash
+export PULSE_SERVER=unix:/mnt/wslg/PulseServer
+export DISPLAY=:0
+```
+See `install-user-service.sh` for an example of a user systemd service configured for WSL audio.
 
 ## Installation
 
@@ -90,3 +101,7 @@ Type checking:
 ```bash
 uv run mypy src/
 ```
+
+## Notes
+
+- Generated audio files are written to `audio_outputs/` and should not be committed to version control.

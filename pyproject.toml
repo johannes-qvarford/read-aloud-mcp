@@ -25,8 +25,9 @@ dev = [
     "mypy>=1.0.0",
     "types-setuptools",
     "ruff>=0.1.0",
-    "pre-commit>=3.0.0",
 ]
+
+
 
 [tool.mypy]
 python_version = "3.11"

@@ -5,7 +5,6 @@ import asyncio
 import sys
 
 from fastmcp import FastMCP
-from pydantic import BaseModel, Field
 
 from .tts_handler import TTSHandler
 
@@ -14,23 +13,15 @@ mcp = FastMCP("Read Aloud MCP Server")
 tts_handler = TTSHandler()
 
 
-class TTSResult(BaseModel):
-    """Result structure for text-to-speech operations."""
-
-    success: bool = Field(description="Whether the operation was successful")
-    message: str = Field(description="Status message or error description")
-    audio_file: str = Field(default="", description="Name of the generated audio file")
-
-
 @mcp.tool()
-async def read_aloud(text: str) -> TTSResult:
+async def read_aloud(text: str) -> str:
     """Convert text to speech and play it aloud.
 
     Args:
         text: The text to convert to speech and play
 
     Returns:
-        Structured result with success status, message, and audio file information
+        A plain status message string (includes audio filename on success)
     """
     # Process text-to-speech in a thread to avoid blocking
     loop = asyncio.get_event_loop()
@@ -38,18 +29,13 @@ async def read_aloud(text: str) -> TTSResult:
     try:
         result_message = await loop.run_in_executor(None, tts_handler.read_aloud, text)
 
-        # Extract audio file name from the result message if present
-        audio_file = ""
-        if "audio: " in result_message:
-            audio_file = result_message.split("audio: ")[-1]
-
-        # Return complex type result
-        return TTSResult(success=True, message=result_message, audio_file=audio_file)
+        # Return plain string result
+        return result_message
 
     except Exception as e:
         error_message = f"Error processing text-to-speech: {str(e)}"
 
-        return TTSResult(success=False, message=error_message, audio_file="")
+        return error_message
 
 
 def main() -> None:
