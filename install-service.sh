@@ -55,10 +55,20 @@ if ! command -v systemctl &> /dev/null; then
     error "systemctl not found. This system doesn't appear to use systemd."
 fi
 
-# Check if uv is installed
-if ! command -v uv &> /dev/null; then
-    error "uv is not installed. Please install uv first: curl -LsSf https://astral.sh/uv/install.sh | sh"
+# Check if uv is installed and get its path
+UV_PATH=$(command -v uv 2>/dev/null)
+if [[ -z "$UV_PATH" ]]; then
+    # Try common locations for uv
+    if [[ -f "$HOME/.local/bin/uv" ]]; then
+        UV_PATH="$HOME/.local/bin/uv"
+    elif [[ -f "/usr/local/bin/uv" ]]; then
+        UV_PATH="/usr/local/bin/uv"
+    else
+        error "uv is not installed. Please install uv first: curl -LsSf https://astral.sh/uv/install.sh | sh"
+    fi
 fi
+
+info "Found uv at: $UV_PATH"
 
 # Check if espeak-ng is installed
 if ! command -v espeak-ng &> /dev/null; then
@@ -84,7 +94,7 @@ sudo chown -R "$SERVICE_USER:$SERVICE_USER" "$INSTALL_DIR"
 
 # Install Python dependencies as the service user
 info "Installing Python dependencies..."
-sudo -u "$SERVICE_USER" bash -c "cd '$INSTALL_DIR' && uv sync --no-dev"
+sudo -u "$SERVICE_USER" bash -c "cd '$INSTALL_DIR' && '$UV_PATH' sync --no-dev"
 
 # Create systemd service file
 info "Creating systemd service file..."
@@ -100,9 +110,9 @@ Type=exec
 User=$SERVICE_USER
 Group=$SERVICE_USER
 WorkingDirectory=$INSTALL_DIR
-Environment=PATH=$INSTALL_DIR/.venv/bin:/usr/local/bin:/usr/bin:/bin
+Environment=PATH=$INSTALL_DIR/.venv/bin:$(dirname "$UV_PATH"):/usr/local/bin:/usr/bin:/bin
 Environment=PYTHONPATH=$INSTALL_DIR
-ExecStart=$INSTALL_DIR/.venv/bin/python -m mcp_tts_server.server --http --port $SERVICE_PORT
+ExecStart=$UV_PATH run read-aloud-mcp --http --port $SERVICE_PORT
 Restart=on-failure
 RestartSec=5
 StandardOutput=journal
