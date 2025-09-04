@@ -23,6 +23,7 @@ dev = [
     "mypy>=1.0.0",
     "types-setuptools",
     "ruff>=0.1.0",
+    "pre-commit>=3.0.0",
 ]
 
 [tool.mypy]
@@ -37,10 +38,12 @@ strict_optional = true
 [tool.ruff]
 target-version = "py311"
 line-length = 88
+
+[tool.ruff.lint]
 select = ["E", "W", "F", "I", "B", "C4", "ARG", "SIM"]
 ignore = ["E501", "E203"]
 
-[tool.ruff.isort]
+[tool.ruff.lint.isort]
 known-first-party = ["mcp_tts_server"]
 
 [project.scripts]

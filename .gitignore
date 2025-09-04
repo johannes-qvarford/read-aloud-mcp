@@ -73,3 +73,6 @@ audio_outputs/*.wav
 
 # Local configuration
 .env.local
+
+# Claude Code
+.claude/

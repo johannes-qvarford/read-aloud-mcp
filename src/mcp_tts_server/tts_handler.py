@@ -1,5 +1,6 @@
 """TTS handler module for generating and playing audio files."""
 
+import contextlib
 from datetime import datetime
 from pathlib import Path
 from typing import Optional
@@ -24,25 +25,20 @@ class TTSHandler:
     def cleanup(self) -> None:
         """Clean up TTS engine resources."""
         if self._tts_engine is not None:
-            try:
+            with contextlib.suppress(Exception):
                 self._tts_engine.stop()
                 del self._tts_engine
-                self._tts_engine = None
-            except Exception:
-                pass  # Ignore cleanup errors
+            self._tts_engine = None
 
     def _get_tts_engine(self) -> pyttsx3.Engine:
         """Get or initialize TTS engine."""
         if self._tts_engine is None:
             # Initialize with default settings to avoid voice issues
             self._tts_engine = pyttsx3.init()
-            
-            try:
+
+            with contextlib.suppress(Exception):
                 # Only set speech rate, avoid voice selection issues
-                self._tts_engine.setProperty('rate', 200)
-            except Exception:
-                # Continue with default settings if customization fails
-                pass
+                self._tts_engine.setProperty("rate", 200)
         return self._tts_engine
 
     def _generate_timestamp_filename(self) -> str:
@@ -77,11 +73,12 @@ class TTSHandler:
             wave_obj = sa.WaveObject.from_wave_file(str(file_path))
             play_obj = wave_obj.play()
             play_obj.wait_done()  # Wait for playback to complete
-            
+
             # Give a moment for audio system to clean up
             import time
+
             time.sleep(0.1)
-            
+
         except Exception as e:
             raise RuntimeError(f"Failed to play audio: {e}") from e
 

@@ -72,17 +72,15 @@ Examples:
   # One-shot text-to-speech
   %(prog)s --text "Hello world"
   %(prog)s --text "This is a test" --no-play
-        """.strip()
+        """.strip(),
     )
     parser.add_argument(
-        "--text",
-        type=str,
-        help="Text to convert to speech (one-shot mode)"
+        "--text", type=str, help="Text to convert to speech (one-shot mode)"
     )
     parser.add_argument(
         "--no-play",
         action="store_true",
-        help="Don't play audio after generation (only save to file)"
+        help="Don't play audio after generation (only save to file)",
     )
 
     args = parser.parse_args()
@@ -98,7 +96,7 @@ Examples:
 async def run_oneshot(text: str, play_audio: bool = True) -> None:
     """Run one-shot text-to-speech conversion."""
     print(f"Converting text to speech: {text[:50]}{'...' if len(text) > 50 else ''}")
-    
+
     handler = None
     try:
         handler = TTSHandler()
@@ -107,9 +105,9 @@ async def run_oneshot(text: str, play_audio: bool = True) -> None:
         else:
             audio_path = handler.generate_speech(text)
             result = f"Audio saved to: {audio_path.name}"
-        
+
         print(f"✓ {result}")
-        
+
     except Exception as e:
         print(f"✗ Error: {e}")
         sys.exit(1)
@@ -117,9 +115,10 @@ async def run_oneshot(text: str, play_audio: bool = True) -> None:
         # Ensure proper cleanup
         if handler is not None:
             handler.cleanup()
-            
+
         # Give time for resources to be released
         import time
+
         time.sleep(0.5)
 
 

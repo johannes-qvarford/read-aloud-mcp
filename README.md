@@ -6,7 +6,7 @@ A Model Context Protocol (MCP) server that provides text-to-speech functionality
 
 - Text-to-speech conversion using pyttsx3 (espeak on Linux, SAPI5 on Windows, etc.)
 - Automatic audio file generation with timestamps
-- Immediate playback after generation  
+- Immediate playback after generation
 - Cross-platform audio support
 - Dual operation modes: MCP server and CLI one-shot
 
