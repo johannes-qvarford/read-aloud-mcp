@@ -70,6 +70,8 @@ Wants=graphical-session.target
 Type=exec
 WorkingDirectory=$PROJECT_DIR
 Environment=PATH=/home/jq/.local/bin:/usr/local/bin:/usr/bin:/bin
+Environment=PULSE_SERVER=unix:/mnt/wslg/PulseServer
+Environment=DISPLAY=:0
 ExecStart=/home/jq/.local/bin/uv run read-aloud-mcp --http --port $SERVICE_PORT
 Restart=on-failure
 RestartSec=5
