@@ -15,6 +15,11 @@ This is an MCP (Model Context Protocol) server that provides text-to-speech func
 - One-shot TTS: `uv run read-aloud-mcp --text "Hello world"`
 - Generate without playing: `uv run read-aloud-mcp --text "Hello" --no-play`
 
+**Systemd Service**:
+- Install service: `./install-service.sh`
+- Uninstall service: `./uninstall-service.sh`
+- Service runs HTTP server on port 8000 by default
+
 
 **Code Quality**:
 - Type checking: `uv run mypy src/`

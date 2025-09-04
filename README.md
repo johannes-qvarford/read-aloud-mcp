@@ -47,6 +47,25 @@ Run as HTTP server for web-based integration:
 uv run read-aloud-mcp --http --port 8000
 ```
 
+### Systemd Service (Production)
+
+Install as a systemd service for production deployment:
+
+```bash
+# Install and start the service
+./install-service.sh
+
+# The service will be available at http://localhost:8000
+# View logs: sudo journalctl -u read-aloud-mcp -f
+# Control service: sudo systemctl {start|stop|restart} read-aloud-mcp
+```
+
+To uninstall the service:
+
+```bash
+./uninstall-service.sh
+```
+
 ### CLI One-shot Mode
 
 Convert text to speech directly from command line:
