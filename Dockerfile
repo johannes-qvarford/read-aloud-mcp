@@ -13,8 +13,8 @@ RUN apt-get update && apt-get install -y \
 # Set working directory
 WORKDIR /app
 
-# Copy Python dependencies
-COPY pyproject.toml uv.lock ./
+# Copy Python dependencies and README (needed by hatchling)
+COPY pyproject.toml uv.lock README.md ./
 
 # Install uv for faster Python package management
 RUN pip install uv
