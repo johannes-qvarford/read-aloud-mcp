@@ -38,6 +38,23 @@ bun install
 
 ## 💻 Usage
 
+### Run via bunx (from GitHub)
+
+Run directly without cloning or global install:
+
+```bash
+# One‑shot TTS
+bunx --package=github:johannes-qvarford/read-aloud-mcp read-aloud-mcp-ts --text "Hello from bunx"
+
+# Specify voice and rate
+bunx --package=github:johannes-qvarford/read-aloud-mcp read-aloud-mcp-ts --text "Hello" --voice en --rate 1.2
+```
+
+Notes:
+- Requires Linux with `espeak-ng` in PATH.
+- The CLI binary name is `read-aloud-mcp-ts`.
+- You can also install globally: `bun add -g github:johannes-qvarford/read-aloud-mcp` then run `read-aloud-mcp-ts ...`.
+
 ### MCP Server Mode (stdio)
 
 Run as MCP server for integration with Claude Desktop:
@@ -66,7 +83,7 @@ Play text directly from the command line (no files written):
 bun run src/main.ts --text "Hello world"
 
 # Use specific voice and rate
-bun run src/main.ts --text "Hello" --voice "Alex" --rate 1.5
+bun run src/main.ts --text "Hello" --voice en --rate 1.5
 ```
 
 ### Production Deployment
@@ -122,10 +139,10 @@ Play text aloud (Linux-only). No files are written.
 
 Get list of available TTS voices on the system.
 
-**Returns:**
+**Returns:** (uses espeak-ng File identifiers)
 ```json
 {
-  "availableVoices": ["Alex", "Alice", "Bruce", "Fred"]
+  "availableVoices": ["en", "en/en", "en+f3"]
 }
 ```
 
