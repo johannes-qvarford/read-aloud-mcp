@@ -39,14 +39,8 @@ macOS has built-in speech synthesis - no additional installation needed.
 ## 🛠️ Installation
 
 ```bash
-# Clone or copy the project
-cd read-aloud-ts
-
-# Install dependencies
+# From the repository root
 bun install
-
-# Make scripts executable
-chmod +x scripts/*.sh
 ```
 
 ## 💻 Usage
@@ -61,11 +55,7 @@ bun run src/main.ts
 
 ### MCP Server Mode (HTTP)
 
-*Note: HTTP mode is planned but not yet implemented*
-
-```bash
-bun run src/main.ts --http --port 8000
-```
+Note: HTTP mode is planned but not yet implemented. Use stdio mode for now.
 
 ### CLI One-shot Mode
 
@@ -84,16 +74,30 @@ bun run src/main.ts --text "Hello" --voice "Alex" --rate 1.5 --format wav
 
 ### Production Deployment
 
-Install as systemd service:
+You can run this as a systemd service. Create a unit like below and adjust the `User`, `WorkingDirectory`, and `ExecStart` paths:
+
+```ini
+[Unit]
+Description=Read Aloud MCP (TypeScript)
+After=network.target
+
+[Service]
+Type=simple
+User=YOUR_USER
+WorkingDirectory=/ABSOLUTE/PATH/TO/REPO
+ExecStart=/usr/bin/env bun run src/main.ts
+Restart=on-failure
+Environment=NODE_ENV=production
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Then run:
 
 ```bash
-# Install system-wide service
-sudo ./scripts/install-service.sh
-
-# View service status
-sudo systemctl status read-aloud-mcp-ts
-
-# View logs  
+sudo systemctl daemon-reload
+sudo systemctl enable --now read-aloud-mcp-ts
 sudo journalctl -u read-aloud-mcp-ts -f
 ```
 
@@ -223,7 +227,7 @@ sudo apt install espeak-ng espeak-ng-data libespeak-ng1
 
 **Import Errors**: Ensure all paths end with `.ts` extension for proper Bun resolution.
 
-**Permission Errors**: Make sure scripts have execute permissions: `chmod +x scripts/*.sh`
+**Permission Errors**: Ensure the service user has write access to `audio_outputs/`.
 
 ## 🤝 Contributing
 
