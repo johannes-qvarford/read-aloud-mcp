@@ -60,9 +60,6 @@ function showVersion(): void {
 
 async function createContext(_outputDir: string): Promise<ToolContext> {
   const ttsEngine = new SayEngine();
-  // Noop manager: playback-only, no file writes
-  const { NoopAudioManager } = await import('./audio/noop-manager.ts');
-  const audioManager = new NoopAudioManager();
   
   // Test TTS availability
   if (!(await ttsEngine.isAvailable())) {
@@ -71,7 +68,7 @@ async function createContext(_outputDir: string): Promise<ToolContext> {
     process.exit(1);
   }
   
-  return { ttsEngine, audioManager };
+  return { ttsEngine };
 }
 
 async function runOneShot(

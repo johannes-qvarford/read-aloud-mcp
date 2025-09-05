@@ -5,8 +5,7 @@
 - `src/server/mcp-server.ts`: MCP server wiring using `fastmcp` + `zod`.
 - `src/tools/read-aloud.ts`: `read_aloud` and `list_voices` tool implementations.
 - `src/tts/`: TTS core types and engine (`say-engine.ts` uses espeak on Linux; built-ins on macOS/Windows).
-- `src/audio/`: Audio file management and playback (`manager.ts`).
-- `audio_outputs/`: Timestamped audio files and `.metadata.json` live here.
+- (Playback-only) No audio file management; nothing is written to disk.
 - Tooling: `package.json` (scripts), `tsconfig.json`, `biome.json`, `bun.lock`.
 
 ## Build, Test, and Development Commands
@@ -38,5 +37,5 @@ Note: Linux-only support (espeak-ng required). Windows and macOS are not support
 
 ## Security & Configuration Tips
 - Linux: install `espeak-ng` for stable voices (see README). On WSL, audio may need PulseAudio configured.
-- Do not commit generated audio (`audio_outputs/`) or local env artifacts. Avoid embedding secrets.
-- If deploying as a service, run with least privileges and a dedicated working directory for `audio_outputs/`.
+- Do not commit local env artifacts. Avoid embedding secrets.
+- If deploying as a service, run with least privileges.

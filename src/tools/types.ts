@@ -5,8 +5,6 @@
 export interface ToolContext {
   /** TTS engine instance */
   ttsEngine: import('../tts/types.ts').TTSEngine;
-  /** Audio manager instance */
-  audioManager: import('../audio/types.ts').AudioManager;
 }
 
 export interface ReadAloudOptions {

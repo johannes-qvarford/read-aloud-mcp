@@ -195,7 +195,7 @@ sudo apt install espeak-ng espeak-ng-data libespeak-ng1
 
 **Import Errors**: Ensure all paths end with `.ts` extension for proper Bun resolution.
 
-**Permission Errors**: Ensure the service user has write access to `audio_outputs/`.
+**Permission Errors**: Ensure the process can access the audio device (ALSA/PulseAudio) and `espeak-ng` is in PATH.
 
 ## 🤝 Contributing
 
