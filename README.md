@@ -1,12 +1,12 @@
 # Read Aloud MCP Server (TypeScript/Bun)
 
-A high-performance Model Context Protocol (MCP) server providing text-to-speech functionality using TypeScript and Bun runtime. This is a modern rewrite of the Python version with enhanced performance, better type safety, and improved cross-platform support.
+A high-performance Model Context Protocol (MCP) server providing text-to-speech functionality using TypeScript and Bun runtime. This is a modern rewrite of the Python version with enhanced performance and better type safety. Note: Linux-only support (espeak-ng).
 
 ## 🚀 Features
 
 - **⚡ Ultra-fast performance** - Bun runtime provides ~10x faster startup than Python
 - **🔧 TypeScript** - Full type safety with modern ES features
-- **🎙️ Cross-platform TTS** - Uses `say` library (espeak-ng on Linux, SAPI on Windows, built-in on macOS)  
+- **🎙️ Linux TTS** - Uses `espeak-ng` on Linux
 - **📡 Multiple modes** - HTTP server, stdio server, and CLI one-shot
 - **🎵 Audio management** - Timestamped files with metadata and automatic cleanup
 - **🔍 MCP integration** - Compatible with Claude Desktop and other MCP clients
@@ -17,7 +17,7 @@ A high-performance Model Context Protocol (MCP) server providing text-to-speech 
 ### System Requirements
 
 - **Bun** 1.0+ - Install from [bun.sh](https://bun.sh)
-- **Node.js** compatible system (Linux, macOS, Windows)
+- **Linux** (x86_64/arm64) with `espeak-ng` available in PATH
 
 ### Linux Systems
 
@@ -28,13 +28,7 @@ sudo apt update
 sudo apt install espeak-ng espeak-ng-data libespeak-ng1
 ```
 
-### Windows
-
-Windows has built-in SAPI support - no additional installation needed.
-
-### macOS
-
-macOS has built-in speech synthesis - no additional installation needed.
+Windows and macOS are not supported.
 
 ## 🛠️ Installation
 
@@ -172,19 +166,6 @@ bun run format
 bun run test
 ```
 
-## 🆚 Comparison with Python Version
-
-| Feature | Python Version | TypeScript Version |
-|---------|---------------|-------------------|
-| **Runtime** | Python 3.11+ + uv | Bun 1.0+ |
-| **Startup Time** | ~2-3 seconds | ~200-300ms |
-| **Dependencies** | pyttsx4, pygame, fastmcp | say, fastmcp, zod |
-| **Type Safety** | mypy (optional) | TypeScript (built-in) |
-| **Memory Usage** | Higher (Python + deps) | Lower (V8 optimization) |
-| **Package Management** | uv + pip | bun (built-in) |
-| **Hot Reload** | Manual restart | Built-in with --watch |
-| **Bundle Size** | N/A | Tree-shaking optimized |
-
 ## 📁 File Management
 
 Generated audio files are stored in `audio_outputs/` with:
@@ -218,10 +199,8 @@ The systemd service runs with restricted permissions:
 sudo apt install espeak-ng espeak-ng-data libespeak-ng1
 ```
 
-**Audio Playback Issues**: The system will try multiple audio players in order:
-- Linux: aplay → paplay → sox
-- macOS: afplay  
-- Windows: PowerShell Media.SoundPlayer
+**Audio Playback Issues**: On Linux, the system will try multiple audio players in order:
+- aplay → paplay → sox
 
 ### Development Issues
 
@@ -234,7 +213,7 @@ sudo apt install espeak-ng espeak-ng-data libespeak-ng1
 1. Follow TypeScript best practices
 2. Use Biome for formatting: `bun run format`
 3. Add types for all new functionality
-4. Test cross-platform compatibility
+4. Test on Linux (espeak-ng) only
 5. Update documentation for new features
 
 ## 📄 License

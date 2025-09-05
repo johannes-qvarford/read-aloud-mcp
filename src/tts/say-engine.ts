@@ -53,7 +53,10 @@ export class SayEngine implements TTSEngine {
 
   private async runEspeak(text: string, outputPath: string, options: Required<Omit<TTSOptions, 'voice'>> & Pick<TTSOptions, 'voice'>): Promise<void> {
     const os = platform();
-    
+    if (os !== 'linux') {
+      throw new TTSError('Only Linux is supported for TTS generation');
+    }
+
     return new Promise((resolve, reject) => {
       const args: string[] = [];
       
@@ -77,8 +80,8 @@ export class SayEngine implements TTSEngine {
       // Add the text
       args.push(text);
       
-      // Choose the appropriate espeak command
-      const command = os === 'linux' ? 'espeak-ng' : 'espeak';
+      // Choose the appropriate espeak command (Linux-only)
+      const command = 'espeak-ng';
       
       const espeak = spawn(command, args);
       
@@ -102,14 +105,73 @@ export class SayEngine implements TTSEngine {
     });
   }
 
+  async speak(text: string, options: TTSOptions = {}): Promise<void> {
+    if (!text.trim()) {
+      throw new TTSError('Text cannot be empty');
+    }
+
+    const finalOptions = { ...this.defaultOptions, ...options };
+    const os = platform();
+    if (os !== 'linux') {
+      throw new TTSError('Only Linux is supported for playback');
+    }
+
+    return new Promise((resolve, reject) => {
+      let command = '';
+      let args: string[] = [];
+
+      if (os === 'darwin') {
+        command = 'say';
+        if (finalOptions.voice) {
+          args.push('-v', finalOptions.voice);
+        }
+        if (finalOptions.rate) {
+          const wpm = Math.round(175 * Math.min(10.0, Math.max(0.1, finalOptions.rate)));
+          args.push('-r', wpm.toString());
+        }
+        args.push(text);
+      } else if (os === 'win32') {
+        command = 'powershell';
+        const vol = Math.round(Math.min(1, Math.max(0, finalOptions.volume)) * 100);
+        // Map rate 0.1-10 to SAPI Rate -10..10 roughly
+        const sapiRate = Math.max(-10, Math.min(10, Math.round((finalOptions.rate - 1) * 5)));
+        const escaped = text.replace(/`/g, '``').replace(/"/g, '\"');
+        const voicePart = finalOptions.voice ? `try { $s.SelectVoice(\"${finalOptions.voice}\"); } catch { }` : '';
+        const ps = `Add-Type -AssemblyName System.Speech; $s = New-Object System.Speech.Synthesis.SpeechSynthesizer; ${voicePart} $s.Rate = ${sapiRate}; $s.Volume = ${vol}; $s.Speak(\"${escaped}\");`;
+        args = ['-NoProfile', '-Command', ps];
+      } else {
+        // Linux: espeak or espeak-ng plays to audio device when no -w is provided
+        const espeakCmd = 'espeak-ng';
+        command = espeakCmd;
+        args = [];
+        if (finalOptions.voice) {
+          args.push('-v', finalOptions.voice);
+        }
+        const wpm = Math.round(175 * Math.min(10.0, Math.max(0.1, finalOptions.rate)));
+        args.push('-s', wpm.toString());
+        const amplitude = Math.round(Math.min(1, Math.max(0, finalOptions.volume)) * 200);
+        args.push('-a', amplitude.toString());
+        args.push(text);
+      }
+
+      const proc = spawn(command, args);
+      let stderr = '';
+      proc.stderr?.on('data', (d) => (stderr += d.toString()));
+      proc.on('close', (code) => {
+        if (code === 0) resolve();
+        else reject(new TTSError(`Playback failed with code ${code}: ${stderr}`));
+      });
+      proc.on('error', (err) => reject(new TTSError(`Failed to spawn player: ${err.message}`)));
+    });
+  }
+
   async getAvailableVoices(): Promise<string[]> {
     if (!(await this.isAvailable())) {
       return [];
     }
 
     try {
-      const os = platform();
-      const command = os === 'linux' ? 'espeak-ng' : 'espeak';
+      const command = 'espeak-ng';
       
       return await new Promise<string[]>((resolve, reject) => {
         const espeak = spawn(command, ['--voices']);
@@ -173,24 +235,9 @@ export class SayEngine implements TTSEngine {
 
   async isAvailable(): Promise<boolean> {
     const os = platform();
-    
+    if (os !== 'linux') return false;
     try {
-      switch (os) {
-        case 'darwin':
-          // macOS has built-in speech synthesis
-          return true;
-        
-        case 'win32':
-          // Windows has SAPI
-          return true;
-        
-        case 'linux':
-          // Linux requires espeak or espeak-ng
-          return await this.checkLinuxTTSAvailable();
-        
-        default:
-          return false;
-      }
+      return await this.checkLinuxTTSAvailable();
     } catch {
       return false;
     }

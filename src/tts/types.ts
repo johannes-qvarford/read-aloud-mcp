@@ -30,6 +30,9 @@ export interface TTSEngine {
   /** Generate speech from text and save to file */
   generateSpeech(text: string, outputPath: string, options?: TTSOptions): Promise<TTSResult>;
   
+  /** Speak text directly without writing to disk */
+  speak(text: string, options?: TTSOptions): Promise<void>;
+  
   /** Get available voices */
   getAvailableVoices(): Promise<string[]>;
   

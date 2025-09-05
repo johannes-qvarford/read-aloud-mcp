@@ -19,6 +19,8 @@
 - Tests: `bun run test` (Vitest). Put tests under `tests/` and mock subprocess/audio I/O.
 - Logs: the CLI prints status and file paths; generated audio lives under `audio_outputs/`.
 
+Note: Linux-only support (espeak-ng required). Windows and macOS are not supported.
+
 ## Coding Style & Naming Conventions
 - TypeScript (ESM). Prefer `lower-kebab-case` for modules, `camelCase` for functions, `PascalCase` for classes.
 - Enforced by Biome (`biome.json`): line width 100, single quotes, semicolons, organize imports.

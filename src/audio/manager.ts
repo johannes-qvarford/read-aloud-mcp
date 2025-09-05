@@ -158,28 +158,12 @@ export class DefaultAudioManager implements AudioManager {
     const os = platform();
     
     return new Promise((resolve, reject) => {
-      let command: string;
-      let args: string[];
-
-      switch (os) {
-        case 'darwin':
-          command = 'afplay';
-          args = [filePath];
-          break;
-        case 'linux':
-          // Try different players in order of preference
-          command = 'aplay';
-          args = [filePath];
-          break;
-        case 'win32':
-          // Use PowerShell to play audio on Windows
-          command = 'powershell';
-          args = ['-c', `(New-Object Media.SoundPlayer '${filePath}').PlaySync()`];
-          break;
-        default:
-          reject(new Error(`Audio playback not supported on platform: ${os}`));
-          return;
+      if (os !== 'linux') {
+        reject(new Error(`Audio playback is supported only on Linux, detected: ${os}`));
+        return;
       }
+      let command = 'aplay';
+      let args: string[] = [filePath];
 
       const player = spawn(command, args);
       

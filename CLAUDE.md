@@ -3,6 +3,8 @@
 This repository provides a Model Context Protocol (MCP) server for text‑to‑speech.
 Use it with Claude Desktop or any MCP‑compatible client via stdio.
 
+Note: Linux-only support (uses `espeak-ng`).
+
 ## Available Tools
 
 - `read_aloud`: Convert text to speech, optionally play the audio, and save to `audio_outputs/`.
@@ -16,11 +18,7 @@ Use it with Claude Desktop or any MCP‑compatible client via stdio.
 bun install
 ```
 
-2) Add the server to Claude Desktop config:
-
-- macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`
-- Windows: `%APPDATA%/Claude/claude_desktop_config.json`
-- Linux: `~/.config/Claude/claude_desktop_config.json`
+2) Add the server to Claude Desktop config (Linux): `~/.config/Claude/claude_desktop_config.json`
 
 Example config snippet:
 
@@ -45,7 +43,7 @@ Example config snippet:
 
 or call explicitly:
 
-"Use the `read_aloud` tool with voice `Alex` and rate `1.2`."
+"Use the `read_aloud` tool with rate `1.2`."
 
 ## CLI Usage (without Claude)
 
