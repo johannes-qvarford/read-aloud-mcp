@@ -113,11 +113,9 @@ async function runMCPServer(context: ToolContext, httpMode: boolean = false, por
   
   try {
     if (httpMode) {
-      console.log(`🚀 Starting MCP server in HTTP mode on port ${port}`);
-      console.log(`📡 Server will be available at http://localhost:${port}`);
-      // TODO: Implement HTTP transport
-      console.error('❌ HTTP mode not yet implemented. Use stdio mode instead.');
-      process.exit(1);
+      console.log(`🚀 Starting MCP server in streaming-HTTP mode on port ${port}`);
+      console.log(`📡 MCP endpoint will be http://localhost:${port}/mcp`);
+      await server.runHttpStream(port);
     } else {
       console.log('🚀 Starting MCP server in stdio mode');
       console.log('📡 Ready to receive MCP requests...');
@@ -181,7 +179,6 @@ async function main(): Promise<void> {
         play: true,
         voice: options.voice,
         rate,
-        format: 'wav',
       });
     } else {
       // Server mode

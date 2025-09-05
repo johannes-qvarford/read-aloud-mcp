@@ -46,9 +46,16 @@ Run as MCP server for integration with Claude Desktop:
 bun run src/main.ts
 ```
 
-### MCP Server Mode (HTTP)
+### MCP Server Mode (Streaming HTTP)
 
-Note: HTTP mode is planned but not yet implemented. Use stdio mode for now.
+Run an MCP server over the streaming-http transport (not a REST API):
+
+```bash
+bun run src/main.ts --http --port 8000
+```
+
+- MCP endpoint: `http://localhost:8000/mcp`
+- Compatible with MCP clients that support the streaming-http transport.
 
 ### CLI One-shot Mode
 
