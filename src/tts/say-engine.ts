@@ -164,12 +164,39 @@ export class SayEngine implements TTSEngine {
   private parseEspeakVoices(output: string): string[] {
     const voices: string[] = [];
     const lines = output.split('\n');
+
+    // Determine the index of the "File" column from the header when possible.
+    let fileColIndex: number | undefined;
     for (const line of lines) {
-      if (line.startsWith('Pty') || !line.trim()) continue;
+      if (!line.trim()) continue;
+      if (line.includes('VoiceName') && line.includes('File')) {
+        const headerParts = line.trim().split(/\s+/);
+        const idx = headerParts.indexOf('File');
+        if (idx !== -1) fileColIndex = idx;
+        break;
+      }
+      // Some versions start with 'Pty ...', treat first such line as header
+      if (line.startsWith('Pty')) {
+        const headerParts = line.trim().split(/\s+/);
+        const idx = headerParts.indexOf('File');
+        if (idx !== -1) fileColIndex = idx;
+        break;
+      }
+    }
+
+    for (const line of lines) {
+      if (!line.trim()) continue;
+      if (line.startsWith('Pty') || line.includes('VoiceName')) continue; // skip header
       const parts = line.trim().split(/\s+/);
-      if (parts.length >= 4) {
-        const voiceName = parts[3];
-        if (voiceName && voiceName !== 'VoiceName') voices.push(voiceName);
+      if (fileColIndex !== undefined && parts.length > fileColIndex) {
+        const fileName = parts[fileColIndex];
+        if (fileName && fileName !== 'File') voices.push(fileName);
+        continue;
+      }
+      // Fallback: older logic assumed index 3 was VoiceName and 4 was File
+      if (parts.length >= 5) {
+        const fileName = parts[4];
+        if (fileName && fileName !== 'File') voices.push(fileName);
       }
     }
     return voices;
@@ -205,4 +232,3 @@ export class SayEngine implements TTSEngine {
     return Promise.resolve();
   }
 }
-
