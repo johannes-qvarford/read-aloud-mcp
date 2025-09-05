@@ -1,20 +1,56 @@
+# Dependencies
+node_modules/
+*.tgz
+
+# Build output
+out/
+dist/
+build/
+*.tsbuildinfo
+
+# Coverage reports
+coverage/
+*.lcov
+# Python coverage
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+
+# Logs
+logs/
+*.log
+report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
+
+# Environment files
+.env
+.env.development.local
+.env.test.local
+.env.production.local
+.env.local
+
+# Caches
+.cache/
+.eslintcache
+
 # Python
 __pycache__/
 *.pyc
 .mypy_cache/
 .ruff_cache/
 .pytest_cache/
-
-# Virtual envs and caches
 .venv/
-.cache/
 
-# Project outputs
-audio_outputs/
+# IDEs
+.idea/
+.vscode/
 
 # OS
 .DS_Store
 Thumbs.db
+
+# Project outputs
+audio_outputs/
 
 # Local AI tooling
 .claude/
