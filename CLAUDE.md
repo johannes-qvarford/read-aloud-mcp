@@ -1,62 +1,106 @@
-# CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+Default to using Bun instead of Node.js.
 
-## Project Overview
+- Use `bun <file>` instead of `node <file>` or `ts-node <file>`
+- Use `bun test` instead of `jest` or `vitest`
+- Use `bun build <file.html|file.ts|file.css>` instead of `webpack` or `esbuild`
+- Use `bun install` instead of `npm install` or `yarn install` or `pnpm install`
+- Use `bun run <script>` instead of `npm run <script>` or `yarn run <script>` or `pnpm run <script>`
+- Bun automatically loads .env, so don't use dotenv.
 
-This is an MCP (Model Context Protocol) server that provides text-to-speech functionality using pyttsx3/espeak. It integrates with MCP clients (like Claude Desktop) to enable TTS capabilities through the `read_aloud` tool.
+## APIs
 
-## Development Commands
+- `Bun.serve()` supports WebSockets, HTTPS, and routes. Don't use `express`.
+- `bun:sqlite` for SQLite. Don't use `better-sqlite3`.
+- `Bun.redis` for Redis. Don't use `ioredis`.
+- `Bun.sql` for Postgres. Don't use `pg` or `postgres.js`.
+- `WebSocket` is built-in. Don't use `ws`.
+- Prefer `Bun.file` over `node:fs`'s readFile/writeFile
+- Bun.$`ls` instead of execa.
 
-**Package Management**: Uses `uv` package manager
-- Install dependencies: `uv sync --extra dev`
-- Run stdio server: `uv run read-aloud-mcp`
-- Run HTTP server: `uv run read-aloud-mcp --http --port 8000`
-- One-shot TTS: `uv run read-aloud-mcp --text "Hello world"`
-- Generate without playing: `uv run read-aloud-mcp --text "Hello" --no-play`
+## Testing
 
-**Systemd Service**:
-- Install service: `./install-service.sh`
-- Uninstall service: `./uninstall-service.sh`
-- Service runs HTTP server on port 8000 by default
+Use `bun test` to run tests.
 
+```ts#index.test.ts
+import { test, expect } from "bun:test";
 
-**Code Quality**:
-- Type checking: `uv run mypy src/`
-- Linting: `uv run ruff check .`
-- Auto-fix linting: `uv run ruff check . --fix`
-- Formatting: `uv run ruff format .`
+test("hello world", () => {
+  expect(1).toBe(1);
+});
+```
 
-## Architecture
+## Frontend
 
-**Multiple Operation Modes**:
-- **Stdio Server Mode**: Traditional MCP server using stdio transport for Claude Desktop integration
-- **HTTP Server Mode**: FastMCP HTTP server for web-based integration
-- **One-shot Mode**: CLI usage triggered by `--text` argument
+Use HTML imports with `Bun.serve()`. Don't use `vite`. HTML imports fully support React, CSS, Tailwind.
 
-**Core Components**:
-- `server.py`: FastMCP server with `@mcp.tool()` decorator for `read_aloud` function
-- `tts_handler.py`: TTSHandler class managing pyttsx3 engine lifecycle, audio generation, and file management
+Server:
 
-**FastMCP Integration**:
-- Uses FastMCP framework for simplified MCP server development
-- Single `@mcp.tool()` decorator replaces complex handler registration
-- Automatic HTTP and stdio transport support
-- Built-in argument validation and response formatting
+```ts#index.ts
+import index from "./index.html"
 
-**Key Patterns**:
-- **FastMCP Tools**: Simple decorated functions instead of class-based handlers
-- **Async/Threading**: TTS processing runs in thread executor to avoid blocking
-- **Resource Management**: Lazy TTS engine initialization with proper cleanup
-- **File Management**: Timestamped filenames (`YYYY-MM-DD_HH-MM-SS-mmm.wav`) in `audio_outputs/`
+Bun.serve({
+  routes: {
+    "/": index,
+    "/api/users/:id": {
+      GET: (req) => {
+        return new Response(JSON.stringify({ id: req.params.id }));
+      },
+    },
+  },
+  // optional websocket support
+  websocket: {
+    open: (ws) => {
+      ws.send("Hello, world!");
+    },
+    message: (ws, message) => {
+      ws.send(message);
+    },
+    close: (ws) => {
+      // handle close
+    }
+  },
+  development: {
+    hmr: true,
+    console: true,
+  }
+})
+```
 
+HTML files can import .tsx, .jsx or .js files directly and Bun's bundler will transpile & bundle automatically. `<link>` tags can point to stylesheets and Bun's CSS bundler will bundle.
 
-## Important Implementation Details
+```html#index.html
+<html>
+  <body>
+    <h1>Hello, world!</h1>
+    <script type="module" src="./frontend.tsx"></script>
+  </body>
+</html>
+```
 
-**TTS Engine**: Uses pyttsx3 which automatically selects OS-appropriate TTS engines (espeak on Linux, SAPI5 on Windows, etc.)
+With the following `frontend.tsx`:
 
-**Audio Flow**: Text → pyttsx3.save_to_file() → .wav file → simpleaudio playback
+```tsx#frontend.tsx
+import React from "react";
 
-**Error Handling**: Comprehensive validation and cleanup, especially important in one-shot mode where process exits
+// import .css files directly and it works
+import './index.css';
 
-**Dependencies**: Minimal runtime deps (mcp, pyttsx3, simpleaudio) with strict typing enabled via mypy configuration
+import { createRoot } from "react-dom/client";
+
+const root = createRoot(document.body);
+
+export default function Frontend() {
+  return <h1>Hello, world!</h1>;
+}
+
+root.render(<Frontend />);
+```
+
+Then, run index.ts
+
+```sh
+bun --hot ./index.ts
+```
+
+For more information, read the Bun API docs in `node_modules/bun-types/docs/**.md`.

@@ -1,0 +1,44 @@
+{
+  "name": "read-aloud-mcp-ts",
+  "version": "0.1.0",
+  "description": "TypeScript/Bun MCP server for text-to-speech functionality with cross-platform TTS support",
+  "type": "module",
+  "main": "src/main.ts",
+  "bin": {
+    "read-aloud-mcp-ts": "./src/main.ts"
+  },
+  "scripts": {
+    "dev": "bun run --watch src/main.ts",
+    "start": "bun run src/main.ts",
+    "build": "bun build src/main.ts --outfile=dist/main.js --target=bun",
+    "test": "vitest",
+    "test:watch": "vitest --watch",
+    "lint": "biome check .",
+    "lint:fix": "biome check . --fix",
+    "format": "biome format . --write",
+    "type-check": "tsc --noEmit"
+  },
+  "keywords": [
+    "mcp",
+    "text-to-speech",
+    "tts",
+    "bun",
+    "typescript",
+    "model-context-protocol"
+  ],
+  "author": "User",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.17.5",
+    "@types/node": "^24.3.1"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.2.3",
+    "@types/bun": "latest",
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.4"
+  },
+  "engines": {
+    "bun": ">=1.0.0"
+  }
+}
