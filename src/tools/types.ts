@@ -16,19 +16,11 @@ export interface ReadAloudOptions {
   rate?: number;
   /** Volume (0.0 to 1.0) */
   volume?: number;
-  /** Whether to play audio after generation */
-  play?: boolean;
-  /** Audio format */
-  format?: 'wav' | 'mp3' | 'ogg';
 }
 
 export interface ReadAloudResult {
   /** Status message */
   message: string;
-  /** Generated audio file path */
-  audioFile: string;
-  /** Audio file size in bytes */
-  fileSize: number;
   /** Whether audio was played */
   played: boolean;
   /** Available voices (if requested) */

@@ -13,11 +13,11 @@
 - Setup: `bun install` (installs runtime deps and dev tools).
 - Run (stdio MCP): `bun run src/main.ts` or `bun run start`.
 - Run (HTTP): `bun run src/main.ts --http --port 8000` (planned; not yet implemented).
-- One‑shot TTS: `bun run src/main.ts --text "Hello" [--no-play] [--voice Alex] [--rate 1.5]`.
+- One‑shot TTS: `bun run src/main.ts --text "Hello" [--voice Alex] [--rate 1.5]`.
 - Lint/Format: `bun run lint` and `bun run format` (Biome).
 - Type check: `bun run type-check` (tsc noEmit).
 - Tests: `bun run test` (Vitest). Put tests under `tests/` and mock subprocess/audio I/O.
-- Logs: the CLI prints status and file paths; generated audio lives under `audio_outputs/`.
+- Logs: the CLI prints status; playback-only (no files written).
 
 Note: Linux-only support (espeak-ng required). Windows and macOS are not supported.
 

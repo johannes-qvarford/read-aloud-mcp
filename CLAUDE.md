@@ -7,7 +7,7 @@ Note: Linux-only support (uses `espeak-ng`).
 
 ## Available Tools
 
-- `read_aloud`: Convert text to speech, optionally play the audio, and save to `audio_outputs/`.
+- `read_aloud`: Play text aloud (no files written).
 - `list_voices`: Return available TTS voices on the system.
 
 ## Quick Start (Claude Desktop)

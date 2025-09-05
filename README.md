@@ -4,11 +4,10 @@ A high-performance Model Context Protocol (MCP) server providing text-to-speech 
 
 ## 🚀 Features
 
-- **⚡ Ultra-fast performance** - Bun runtime provides ~10x faster startup than Python
+- **⚡ Ultra-fast performance** - Bun runtime with fast startup
 - **🔧 TypeScript** - Full type safety with modern ES features
-- **🎙️ Linux TTS** - Uses `espeak-ng` on Linux
-- **📡 Multiple modes** - HTTP server, stdio server, and CLI one-shot
-- **🎵 Audio management** - Timestamped files with metadata and automatic cleanup
+- **🎙️ Linux TTS (playback-only)** - Uses `espeak-ng` on Linux; no files written
+- **📡 Multiple modes** - stdio MCP server and CLI one-shot
 - **🔍 MCP integration** - Compatible with Claude Desktop and other MCP clients
 - **⚙️ Modern tooling** - Biome for linting/formatting, Vitest for testing
 
@@ -53,17 +52,14 @@ Note: HTTP mode is planned but not yet implemented. Use stdio mode for now.
 
 ### CLI One-shot Mode
 
-Convert text to speech directly from command line:
+Play text directly from the command line (no files written):
 
 ```bash
-# Generate and play audio
+# Play with defaults
 bun run src/main.ts --text "Hello world"
 
-# Generate without playing
-bun run src/main.ts --text "Hello world" --no-play
-
-# Use specific voice and settings
-bun run src/main.ts --text "Hello" --voice "Alex" --rate 1.5 --format wav
+# Use specific voice and rate
+bun run src/main.ts --text "Hello" --voice "Alex" --rate 1.5
 ```
 
 ### Production Deployment
@@ -99,22 +95,18 @@ sudo journalctl -u read-aloud-mcp-ts -f
 
 ### `read_aloud`
 
-Convert text to speech and optionally play it aloud.
+Play text aloud (Linux-only). No files are written.
 
 **Parameters:**
-- `text` (required): Text to convert to speech
+- `text` (required): Text to speak
 - `voice` (optional): Voice to use for TTS
 - `rate` (optional): Speech rate from 0.1 to 10.0 (default: 1.0)
-- `volume` (optional): Volume from 0.0 to 1.0 (default: 1.0)  
-- `play` (optional): Whether to play audio after generation (default: true)
-- `format` (optional): Audio format - wav, mp3, ogg (default: wav)
+- `volume` (optional): Volume from 0.0 to 1.0 (default: 1.0)
 
 **Returns:**
 ```json
 {
-  "message": "Successfully generated and played audio: 2024-01-15_14-30-25.wav",
-  "audioFile": "2024-01-15_14-30-25.wav", 
-  "fileSize": 48000,
+  "message": "Successfully played audio",
   "played": true
 }
 ```
@@ -168,10 +160,7 @@ bun run test
 
 ## 📁 File Management
 
-Generated audio files are stored in `audio_outputs/` with:
-- **Timestamped filenames**: `YYYY-MM-DD_HH-MM-SS.wav`
-- **Metadata tracking**: Original text, file size, creation time
-- **Automatic cleanup**: Configurable limits on file count and age
+Playback-only: no files are written.
 
 ## ⚡ Performance Features
 

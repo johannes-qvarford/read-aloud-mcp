@@ -14,63 +14,15 @@ export async function readAloudTool(
     throw new Error('Text parameter is required and cannot be empty');
   }
 
-  const {
-    voice,
-    rate = 1.0,
-    volume = 1.0,
-    play = true,
-    format = 'wav',
-  } = options;
+  const { voice, rate = 1.0, volume = 1.0 } = options;
 
   try {
-    // Generate audio filename
-    const filename = context.audioManager.generateFilename(format);
-    const outputPath = context.audioManager.getFullPath(filename);
-
-    // Generate speech
-    const ttsResult = await context.ttsEngine.generateSpeech(
-      text,
-      outputPath,
-      {
-        voice,
-        rate,
-        volume,
-        format,
-      }
-    );
-
-    // Save metadata
-    await context.audioManager.saveMetadata({
-      path: ttsResult.filePath,
-      size: ttsResult.size,
-      createdAt: new Date(),
-      duration: ttsResult.duration,
-      originalText: text,
-      format: ttsResult.format,
-    });
-
-    // Play audio if requested
-    let played = false;
-    if (play) {
-      try {
-        await context.audioManager.playAudioFile(ttsResult.filePath);
-        played = true;
-      } catch (error) {
-        console.warn('Audio playback failed:', error);
-        // Don't fail the entire operation if playback fails
-      }
-    }
-
-    // Cleanup old files periodically (every 10th call)
-    if (Math.random() < 0.1) {
-      context.audioManager.cleanup().catch(console.warn);
-    }
+    // Playback-only, no filesystem writes
+    await context.ttsEngine.speak(text, { voice, rate, volume });
 
     return {
-      message: `Successfully generated ${played ? 'and played ' : ''}audio: ${filename}`,
-      audioFile: filename,
-      fileSize: ttsResult.size,
-      played,
+      message: 'Successfully played audio',
+      played: true,
     };
 
   } catch (error) {

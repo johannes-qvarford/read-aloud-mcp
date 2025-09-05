@@ -31,8 +31,6 @@ export class ReadAloudMCPServer {
       voice: z.string().optional(),
       rate: z.number().min(0.1).max(10).optional(),
       volume: z.number().min(0).max(1).optional(),
-      play: z.boolean().optional(),
-      format: z.enum(['wav', 'mp3', 'ogg']).optional(),
     });
 
     const listVoicesSchema = z.object({});
@@ -45,18 +43,12 @@ export class ReadAloudMCPServer {
       'read_aloud',
       {
         description:
-          'Convert text to speech and optionally play it aloud. Generates timestamped audio files.',
+          'Play text aloud (Linux-only, espeak-ng). No files are written to disk.',
         schema: readAloudSchema,
       },
       async (args: z.infer<typeof readAloudSchema>) => {
-        const { text, voice, rate, volume, play, format } = args;
-        const result = await readAloudTool(text, this.context, {
-          voice,
-          rate,
-          volume,
-          play,
-          format,
-        });
+        const { text, voice, rate, volume } = args;
+        const result = await readAloudTool(text, this.context, { voice, rate, volume });
         return JSON.stringify(result, null, 2);
       }
     );

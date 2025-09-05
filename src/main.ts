@@ -5,27 +5,22 @@
  */
 
 import { parseArgs } from 'node:util';
-import { join } from 'node:path';
 import { SayEngine } from './tts/say-engine.ts';
-import { DefaultAudioManager } from './audio/manager.ts';
 import { ReadAloudMCPServer } from './server/mcp-server.ts';
 import { readAloudTool } from './tools/read-aloud.ts';
 import type { ToolContext } from './tools/types.ts';
 
 const VERSION = '0.1.0';
-const DEFAULT_OUTPUT_DIR = './audio_outputs';
+// Playback-only; no filesystem writes
 
 interface CLIOptions {
   text?: string;
-  'no-play'?: boolean;
   http?: boolean;
   port?: string;
   voice?: string;
   rate?: string;
-  format?: 'wav' | 'mp3' | 'ogg';
   help?: boolean;
   version?: boolean;
-  'output-dir'?: string;
 }
 
 function showHelp(): void {
@@ -37,13 +32,10 @@ USAGE:
 
 OPTIONS:
   --text <TEXT>           One-shot mode: convert text to speech and exit
-  --no-play              Don't play audio after generation (only save file)
   --http                 Run as HTTP server instead of stdio
   --port <PORT>          Port for HTTP server (default: 8000)
   --voice <VOICE>        Voice to use for TTS
   --rate <RATE>          Speech rate (0.1-10.0, default: 1.0)
-  --format <FORMAT>      Audio format: wav, mp3, ogg (default: wav)
-  --output-dir <DIR>     Output directory for audio files (default: ${DEFAULT_OUTPUT_DIR})
   --help                 Show this help message
   --version              Show version information
 
@@ -57,9 +49,6 @@ EXAMPLES:
   # One-shot text-to-speech
   bun run src/main.ts --text "Hello world"
 
-  # Generate without playing
-  bun run src/main.ts --text "Hello world" --no-play
-
   # Use specific voice and rate
   bun run src/main.ts --text "Hello" --voice "Alex" --rate 1.5
 `);
@@ -69,9 +58,11 @@ function showVersion(): void {
   console.log(`Read Aloud MCP Server (TypeScript/Bun) v${VERSION}`);
 }
 
-async function createContext(outputDir: string): Promise<ToolContext> {
+async function createContext(_outputDir: string): Promise<ToolContext> {
   const ttsEngine = new SayEngine();
-  const audioManager = new DefaultAudioManager({ outputDir });
+  // Noop manager: playback-only, no file writes
+  const { NoopAudioManager } = await import('./audio/noop-manager.ts');
+  const audioManager = new NoopAudioManager();
   
   // Test TTS availability
   if (!(await ttsEngine.isAvailable())) {
@@ -90,25 +81,16 @@ async function runOneShot(
     play: boolean;
     voice?: string;
     rate?: number;
-    format?: 'wav' | 'mp3' | 'ogg';
   }
 ): Promise<void> {
   console.log(`🎤 Converting text to speech: ${text.length > 50 ? text.slice(0, 50) + '...' : text}`);
   
   try {
     const result = await readAloudTool(text, context, {
-      play: options.play,
       voice: options.voice,
       rate: options.rate,
-      format: options.format,
     });
-    
     console.log(`✅ ${result.message}`);
-    console.log(`📁 File: ${result.audioFile} (${Math.round(result.fileSize / 1024)} KB)`);
-    
-    if (options.play && !result.played) {
-      console.log('⚠️  Audio playback failed, but file was generated successfully');
-    }
   } catch (error) {
     console.error(`❌ Error: ${error instanceof Error ? error.message : String(error)}`);
     process.exit(1);
@@ -156,15 +138,12 @@ async function main(): Promise<void> {
       args: process.argv.slice(2),
       options: {
         text: { type: 'string' },
-        'no-play': { type: 'boolean' },
         http: { type: 'boolean' },
         port: { type: 'string' },
         voice: { type: 'string' },
         rate: { type: 'string' },
-        format: { type: 'string' },
         help: { type: 'boolean' },
         version: { type: 'boolean' },
-        'output-dir': { type: 'string' },
       },
       allowPositionals: false,
     }) as { values: CLIOptions };
@@ -182,14 +161,7 @@ async function main(): Promise<void> {
     // Parse numeric options
     const port = options.port ? parseInt(options.port, 10) : 8000;
     const rate = options.rate ? parseFloat(options.rate) : undefined;
-    const outputDir = options['output-dir'] || DEFAULT_OUTPUT_DIR;
-
-    // Validate format
-    const format = options.format as 'wav' | 'mp3' | 'ogg' | undefined;
-    if (format && !['wav', 'mp3', 'ogg'].includes(format)) {
-      console.error('❌ Invalid format. Supported formats: wav, mp3, ogg');
-      process.exit(1);
-    }
+    const outputDir = 'unused';
 
     // Validate rate
     if (rate !== undefined && (rate < 0.1 || rate > 10.0)) {
@@ -209,10 +181,10 @@ async function main(): Promise<void> {
     if (options.text) {
       // One-shot mode
       await runOneShot(options.text, context, {
-        play: !options['no-play'],
+        play: true,
         voice: options.voice,
         rate,
-        format,
+        format: 'wav',
       });
     } else {
       // Server mode
