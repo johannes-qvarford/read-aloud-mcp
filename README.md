@@ -178,7 +178,7 @@ bun run test
 |---------|---------------|-------------------|
 | **Runtime** | Python 3.11+ + uv | Bun 1.0+ |
 | **Startup Time** | ~2-3 seconds | ~200-300ms |
-| **Dependencies** | pyttsx4, pygame, fastmcp | say, @modelcontextprotocol/sdk |
+| **Dependencies** | pyttsx4, pygame, fastmcp | say, fastmcp, zod |
 | **Type Safety** | mypy (optional) | TypeScript (built-in) |
 | **Memory Usage** | Higher (Python + deps) | Lower (V8 optimization) |
 | **Package Management** | uv + pip | bun (built-in) |

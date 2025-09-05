@@ -2,7 +2,7 @@
 
 ## Project Structure & Module Organization
 - `src/main.ts`: CLI and MCP entrypoint (stdio; HTTP planned).
-- `src/server/mcp-server.ts`: MCP server wiring using `@modelcontextprotocol/sdk`.
+- `src/server/mcp-server.ts`: MCP server wiring using `fastmcp` + `zod`.
 - `src/tools/read-aloud.ts`: `read_aloud` and `list_voices` tool implementations.
 - `src/tts/`: TTS core types and engine (`say-engine.ts` uses espeak on Linux; built-ins on macOS/Windows).
 - `src/audio/`: Audio file management and playback (`manager.ts`).

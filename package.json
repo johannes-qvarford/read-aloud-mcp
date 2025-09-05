@@ -29,8 +29,9 @@
   "author": "User",
   "license": "MIT",
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.17.5",
-    "@types/node": "^24.3.1"
+    "@types/node": "^24.3.1",
+    "fastmcp": "^0.1.0",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.2.3",
